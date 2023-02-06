@@ -44,7 +44,7 @@ if seed_paper == 'New Search':
             seed_paper = get_heading(paperId)
             shortname = nodes[paperId][4][0]['name'].split()[-1].lower()
             available_papers_dict[seed_paper] = shortname
-            available_papers_list.insert(-1, shortname)
+            available_papers_list.insert(-1, seed_paper)
             # Save data
             with open("data/"+shortname+"_nodes.pkl", 'wb') as n:
                 pickle.dump(nodes, n)
