@@ -59,7 +59,7 @@ st.markdown('The x axis is time. Pink nodes are direct references (parents) of t
 
 # weight_by_similarity (boolean, by default False)
 # Currently not allowed for new searches
-if seed_paper in available_papers_list:
+if seed_paper == "Friston (2010)":
     weight_by_similarity = st.checkbox("Weight edges by semantic similarity between papers?")
 else:
     weight_by_similarity = False
