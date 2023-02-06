@@ -53,6 +53,7 @@ if seed_paper == 'New Search':
             with open("data/available_papers_list.pkl", 'wb') as l:
                 pickle.dump(available_papers_list, l)
             edges.to_csv("data/"+shortname+"_edges_complete.csv")
+        st.success('Done!')
 
 if seed_paper != 'New_Search':
     if st.button('Display Graph'):
