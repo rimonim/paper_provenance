@@ -155,13 +155,13 @@ filename = available_papers_dict[seed_paper]+"_provenance.html"
 
 # Save and read graph as HTML file (on Streamlit Sharing)
 try:
-    net.save_graph("/tmp/"+filename)
-    html = open("/tmp/"+filename, 'r', encoding='utf-8')
+    net.save_graph("tmp/"+filename)
+    html = open("tmp/"+filename, 'r', encoding='utf-8')
 
 # Save and read graph as HTML file (locally)
 except:
-    net.save_graph("/html_files/"+filename)
-    html = open("/html_files/"+filename, 'r', encoding='utf-8')
+    net.save_graph("html_files/"+filename)
+    html = open("html_files/"+filename, 'r', encoding='utf-8')
 
 # Load HTML file in HTML component for display on Streamlit page
 components.html(html.read(), height=500)
