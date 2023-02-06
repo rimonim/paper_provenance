@@ -36,8 +36,8 @@ def get_heading(paperId):
 
 # New search by url
 if seed_paper == 'New Search':
+    url = st.text_input('Input Semantic Scholar or arXiv URL:')
     with st.spinner('Retrieving data from the SemanticScholar Database...'):
-        url = st.text_input('Input Semantic Scholar or arXiv URL:')
         nodes, edges = get_provenance(url)
         paperId = edges.iloc[0,0]
         seed_paper = get_heading(paperId)
