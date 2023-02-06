@@ -39,7 +39,7 @@ if seed_paper == 'New Search':
     url = st.text_input('Input Semantic Scholar or arXiv URL:')
     if len(url) != 0:
         with st.spinner('Retrieving data from the SemanticScholar Database...'):
-            nodes, edges = get_provenance(url)
+            nodes, edges = get_provenance.get_provenance(url)
             paperId = edges.iloc[0,0]
             seed_paper = get_heading(paperId)
             shortname = nodes[paperId][4][0]['name'].split()[-1].lower()
