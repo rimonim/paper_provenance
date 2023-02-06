@@ -57,9 +57,6 @@ if seed_paper == 'New Search':
 st.title('Provenance of '+seed_paper)
 st.markdown('The x axis is time. Pink nodes are direct references (parents) of the seed paper, while grey nodes are references of references (grandparents). With the exception of the seed paper, nodes are sized in proportion to their number of citations within the graph.')
 
-# references_cutoff dropdown menu (returns int)
-references_cutoff = st.number_input("Do not show grandparent papers with fewer than n references in the graph:", min_value=4, max_value=8)
-
 # weight_by_similarity (boolean, by default False)
 # Currently not allowed for new searches
 if seed_paper in available_papers_list:
@@ -79,7 +76,7 @@ with open("data/"+available_papers_dict[seed_paper]+"_nodes.pkl", 'rb') as handl
     nodes = pickle.load(handle)
 
 # Abridged edge list
-abridged_edges = edges.loc[edges['total_refs'] >= references_cutoff | edges['direct_ref']]
+abridged_edges = edges.loc[edges['total_refs'] >= 5 | edges['direct_ref']]
 
 # Create networkx graph object
 G = nx.from_pandas_edgelist(abridged_edges,
