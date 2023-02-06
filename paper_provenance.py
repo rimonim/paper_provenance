@@ -64,11 +64,7 @@ if seed_paper != 'New_Search':
             st.markdown('The x axis is time. Pink nodes are direct references (parents) of the seed paper, while grey nodes are references of references (grandparents). With the exception of the seed paper, nodes are sized in proportion to their number of citations within the graph. Grandparent papers with three or fewer references have been dropped to avoid clutter.')
 
             # weight_by_similarity (boolean, by default False)
-            # Currently not allowed for new searches
-            if seed_paper == "Friston (2010)":
-                weight_by_similarity = st.checkbox("Weight edges by semantic similarity between papers?")
-            else:
-                weight_by_similarity = False
+            weight_by_similarity = False
 
             # Read edges and nodes datasets (and set min_value)
             if weight_by_similarity:
