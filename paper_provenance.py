@@ -18,7 +18,7 @@ except:
     available_papers_dict = {'Friston (2010)':'friston', 'Jones et al. (2021)':'jones'}
     available_papers_list = ['Friston (2010)', 'Jones et al. (2021)', 'New Search']
 
-seed_paper = st.selectbox("Select another seed paper to visualize:", available_papers_list)
+seed_paper = st.selectbox("Select a seed paper to visualize:", available_papers_list)
 
 # Function for getting paper title (requires access to nodes and edges)
 def get_heading(paperId):
