@@ -151,7 +151,7 @@ const options = {
 }
 """)
 
-filename = nodes[edges.iloc[0,0]][4][0]['name'].split()[-1].lower()+"_provenance.html"
+filename = available_papers_dict[seed_paper]+"_provenance.html"
 
 # Save and read graph as HTML file (on Streamlit Sharing)
 try:
