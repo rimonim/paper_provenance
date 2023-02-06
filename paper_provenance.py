@@ -3,36 +3,80 @@ import streamlit.components.v1 as components
 import pandas as pd
 import networkx as nx
 from pyvis.network import Network
-import pickle
 import textwrap
+import pickle
+import get_provenance
 
 # list of available papers, with corresponding filenames
-available_papers_list = ['Friston (2010)', 'Jones et al. (2021)']
-available_papers_dict = {'Friston (2010)':'friston', 'Jones et al. (2021)':'jones'}
+
+try:
+    with open("data/available_papers_dict.pkl", 'rb') as d:
+        available_papers_dict = pickle.load(d)
+    with open("data/available_papers_list.pkl", 'rb') as l:
+        available_papers_list = pickle.load(l)
+except:
+    available_papers_dict = {'Friston (2010)':'friston', 'Jones et al. (2021)':'jones'}
+    available_papers_list = ['Friston (2010)', 'Jones et al. (2021)', 'New Search']
+
 seed_paper = st.selectbox("Select another seed paper to visualize:", available_papers_list)
+
+# Function for getting paper title (requires access to nodes and edges)
+def get_heading(paperId):
+    title = nodes[paperId][0]
+    year = str(round(nodes[paperId][2]))
+    if len(nodes[paperId][4]) == 0:
+        authors = "Unknown Authors"
+    elif len(nodes[paperId][4]) == 1:
+        authors = nodes[paperId][4][0]['name'].split()[-1]
+    elif len(nodes[paperId][4]) == 2:
+        authors = nodes[paperId][4][0]['name'].split()[-1]+" & "+nodes[paperId][4][1]['name'].split()[-1]
+    else:
+        authors = nodes[paperId][4][0]['name'].split()[-1]+" et al."
+    return authors+", "+year
+
+# New search by url
+if seed_paper == 'New Search':
+    with st.spinner('Retrieving data from the SemanticScholar Database...'):
+        url = st.text_input('Input Semantic Scholar or arXiv URL:')
+        nodes, edges = get_provenance(url)
+        paperId = edges.iloc[0,0]
+        seed_paper = get_heading(paperId)
+        shortname = nodes[paperId][4][0]['name'].split()[-1].lower()
+        available_papers_dict[seed_paper] = shortname
+        available_papers_list.insert(-1, shortname)
+        # Save data
+        with open("data/"+shortname+"_nodes.pkl", 'wb') as n:
+            pickle.dump(nodes, n)
+        with open("data/available_papers_dict.pkl", 'wb') as d:
+            pickle.dump(available_papers_dict, d)
+        with open("data/available_papers_list.pkl", 'wb') as l:
+            pickle.dump(available_papers_list, l)
+        edges.to_csv("data/"+shortname+"_edges_complete.csv")
 
 # Set header title
 st.title('Provenance of '+seed_paper)
-st.text('The x axis is time. Pink nodes are direct references (parents) of the seed paper, while grey nodes are references of references (grandparents). With the exception of the seed paper, nodes are sized in proportion to their number of citations within the graph.')
+st.markdown('The x axis is time. Pink nodes are direct references (parents) of the seed paper, while grey nodes are references of references (grandparents). With the exception of the seed paper, nodes are sized in proportion to their number of citations within the graph.')
+
+# references_cutoff dropdown menu (returns int)
+references_cutoff = st.number_input("Do not show grandparent papers with fewer than n references in the graph:", min_value=4, max_value=8)
 
 # weight_by_similarity (boolean, by default False)
-weight_by_similarity = st.checkbox("Weight edges by semantic similarity between papers?")
-
+# Currently not allowed for new searches
+if seed_paper in available_papers_list:
+    weight_by_similarity = st.checkbox("Weight edges by semantic similarity between papers?")
+else:
+    weight_by_similarity = False
+    
 # Read edges and nodes datasets (and set min_value)
 if weight_by_similarity:
     edges = pd.read_csv("data/"+available_papers_dict[seed_paper]+"_edges.csv")
-    min_value = 4
     attr = "length"
 else:
     edges = pd.read_csv("data/"+available_papers_dict[seed_paper]+"_edges_complete.csv")
-    min_value = 1
     attr = None
 
 with open("data/"+available_papers_dict[seed_paper]+"_nodes.pkl", 'rb') as handle:
     nodes = pickle.load(handle)
-
-# references_cutoff dropdown menu (returns int)
-references_cutoff = st.number_input("Do not show grandparent papers with fewer than n references in the graph:", min_value=min_value, max_value=8)
 
 # Abridged edge list
 abridged_edges = edges.loc[edges['total_refs'] >= references_cutoff | edges['direct_ref']]
@@ -54,15 +98,8 @@ for i in nodes:
         journal = nodes[i][3]['name']
     else:
         journal = "Unknown Journal"
-    if len(nodes[i][4]) == 0:
-        authors = "Unknown Authors"
-    elif len(nodes[i][4]) == 1:
-        authors = nodes[i][4][0]['name'].split()[-1]
-    elif len(nodes[i][4]) == 2:
-        authors = nodes[i][4][0]['name'].split()[-1]+" & "+nodes[i][4][1]['name'].split()[-1]
-    else:
-        authors = nodes[i][4][0]['name'].split()[-1]+" et al."
-    node_label[i] = url+authors+", "+year+"</a><br>"+textwrap.fill(title, 40)+"<br>"+textwrap.fill(journal, 40)
+    heading = get_heading(i)
+    node_label[i] = url+heading+"</a><br>"+textwrap.fill(title, 40)+"<br>"+textwrap.fill(journal, 40)
     
 nx.set_node_attributes(G, node_label, 'title')
 nx.set_node_attributes(G, " ", 'label')
@@ -153,15 +190,9 @@ const options = {
 
 filename = available_papers_dict[seed_paper]+"_provenance.html"
 
-# Save and read graph as HTML file (on Streamlit Sharing)
-try:
-    net.save_graph("tmp/"+filename)
-    html = open("tmp/"+filename, 'r', encoding='utf-8')
-
-# Save and read graph as HTML file (locally)
-except:
-    net.save_graph("html_files/"+filename)
-    html = open("html_files/"+filename, 'r', encoding='utf-8')
+# Save and read graph as HTML file locally
+net.save_graph("html_files/"+filename)
+html = open("html_files/"+filename, 'r', encoding='utf-8')
 
 # Load HTML file in HTML component for display on Streamlit page
 components.html(html.read(), height=500)
@@ -170,7 +201,6 @@ components.html(html.read(), height=500)
 st.markdown(
     """
     <br>
-    <h6><a href="https://github.com/rimonim/quantitative_history" target="_blank">GitHub Repo for data collection</a></h6>
     <h6><a href="https://github.com/rimonim/paper_provenance" target="_blank">GitHub Repo for this App</a></h6>
     """, unsafe_allow_html=True
     )
