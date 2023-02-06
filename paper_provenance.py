@@ -37,21 +37,22 @@ def get_heading(paperId):
 # New search by url
 if seed_paper == 'New Search':
     url = st.text_input('Input Semantic Scholar or arXiv URL:')
-    with st.spinner('Retrieving data from the SemanticScholar Database...'):
-        nodes, edges = get_provenance(url)
-        paperId = edges.iloc[0,0]
-        seed_paper = get_heading(paperId)
-        shortname = nodes[paperId][4][0]['name'].split()[-1].lower()
-        available_papers_dict[seed_paper] = shortname
-        available_papers_list.insert(-1, shortname)
-        # Save data
-        with open("data/"+shortname+"_nodes.pkl", 'wb') as n:
-            pickle.dump(nodes, n)
-        with open("data/available_papers_dict.pkl", 'wb') as d:
-            pickle.dump(available_papers_dict, d)
-        with open("data/available_papers_list.pkl", 'wb') as l:
-            pickle.dump(available_papers_list, l)
-        edges.to_csv("data/"+shortname+"_edges_complete.csv")
+    if url == True:
+        with st.spinner('Retrieving data from the SemanticScholar Database...'):
+            nodes, edges = get_provenance(url)
+            paperId = edges.iloc[0,0]
+            seed_paper = get_heading(paperId)
+            shortname = nodes[paperId][4][0]['name'].split()[-1].lower()
+            available_papers_dict[seed_paper] = shortname
+            available_papers_list.insert(-1, shortname)
+            # Save data
+            with open("data/"+shortname+"_nodes.pkl", 'wb') as n:
+                pickle.dump(nodes, n)
+            with open("data/available_papers_dict.pkl", 'wb') as d:
+                pickle.dump(available_papers_dict, d)
+            with open("data/available_papers_list.pkl", 'wb') as l:
+                pickle.dump(available_papers_list, l)
+            edges.to_csv("data/"+shortname+"_edges_complete.csv")
 
 # Set header title
 st.title('Provenance of '+seed_paper)
