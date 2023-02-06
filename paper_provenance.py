@@ -14,6 +14,7 @@ try:
         available_papers_dict = pickle.load(d)
     with open("data/available_papers_list.pkl", 'rb') as l:
         available_papers_list = pickle.load(l)
+    [x for x in available_papers_list if ", " in x]
 except:
     available_papers_dict = {'Friston (2010)':'friston', 'Jones et al. (2021)':'jones'}
     available_papers_list = ['Friston (2010)', 'Jones et al. (2021)', 'New Search']
@@ -115,7 +116,7 @@ if seed_paper != 'New_Search':
 
             # Vary node size by number of citations (except source node)
             node_citations = (abridged_edges.loc[:,'referenced'].value_counts()*5).to_dict()
-            node_citations[abridged_edges.iloc[0,0]] = 50
+            node_citations[abridged_edges.iloc[0,0]] = max(abridged_edges.loc[:,'referenced'].value_counts()*5) - 5
             nx.set_node_attributes(G, node_citations, 'size')
 
             # Vary node color by seed/parent/grandparent
