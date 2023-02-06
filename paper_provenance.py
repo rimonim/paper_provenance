@@ -76,7 +76,7 @@ with open("data/"+available_papers_dict[seed_paper]+"_nodes.pkl", 'rb') as handl
     nodes = pickle.load(handle)
 
 # Abridged edge list
-abridged_edges = edges.loc[edges['total_refs'] >= 5 | edges['direct_ref']]
+abridged_edges = edges.loc[(edges['total_refs'] >= 5) | (edges['direct_ref'])]
 
 # Create networkx graph object
 G = nx.from_pandas_edgelist(abridged_edges,
