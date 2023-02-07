@@ -246,10 +246,10 @@ else:
         seed_paper, html = graph_provenance(available_papers_dict[seed_paper], 4)
         progress_bar.progress(1.0)
 
-progress_bar.empty()
 with st.spinner("Preparing your graph..."):
     # Set header title
     if seed_paper != 'New Search':
+        progress_bar.empty()
         st.title('Provenance of '+seed_paper)
         st.markdown('The x axis is time. Pink nodes are direct references (parents) of the seed paper, while grey nodes are references of references (grandparents). With the exception of the seed paper, nodes are sized in proportion to their number of citations within the graph. Grandparent papers with three or fewer references have been dropped to avoid clutter.')
 
