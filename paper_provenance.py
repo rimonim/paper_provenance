@@ -28,6 +28,7 @@ def get_provenance(seed_paper):
     nodes[json['paperId']] = [json['title'], datetime.strptime(json['publicationDate'], '%Y-%m-%d'), json['year'], json['journal'], json['authors'], json['url'], json['embedding']['vector']]
     # Put corpus-listed references into nodes dict
     references_df = pd.DataFrame(json['references']).dropna()
+    references_df = references_df.set_index('paperId').reset_index()
     for index, row in references_df.iterrows():
         nodes[row['paperId']] = [row['title'], datetime.strptime(row['publicationDate'], '%Y-%m-%d'), row['year'], row['journal'], row['authors'], row['url']]
     # Make edges list with corpus-listed references
@@ -36,7 +37,8 @@ def get_provenance(seed_paper):
     progress_bar.progress(1/len(references_df.index))
     # For each reference, get its references and their metadata, and add them to the dicts
     for index, row in references_df.iterrows():
-        progress_bar.progress((index+1)/len(references_df.index))
+        if index <= len(references_df.index):
+            progress_bar.progress(0.9*index/len(references_df.index))
         # Get metadata and references of referenced paper
         temp_http = requests.get("https://api.semanticscholar.org/graph/v1/paper/%s?fields=title,year,publicationDate,journal,authors,url,references.title,references.publicationDate,references.year,references.journal,references.authors,references.url" %row['paperId'])
         if temp_http.status_code == 429:
