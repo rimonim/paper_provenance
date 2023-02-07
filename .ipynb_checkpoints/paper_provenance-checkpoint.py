@@ -5,9 +5,24 @@ import networkx as nx
 from pyvis.network import Network
 import textwrap
 import pickle
-from get_provenance import get_provenance, get_heading
+from get_provenance import get_provenance
     
-# FUNCTION
+# FUNCTIONS
+@st.cache(max_entries=20)   #-- cache data
+def get_heading(paperId, nodes, edges):
+    """Function: Gets pretty paper citation (nodes and edges from get_provenance)"""
+    title = nodes[paperId][0]
+    year = str(round(nodes[paperId][2]))
+    if len(nodes[paperId][4]) == 0:
+        authors = "Unknown Authors"
+    elif len(nodes[paperId][4]) == 1:
+        authors = nodes[paperId][4][0]['name'].split()[-1]
+    elif len(nodes[paperId][4]) == 2:
+        authors = nodes[paperId][4][0]['name'].split()[-1]+" & "+nodes[paperId][4][1]['name'].split()[-1]
+    else:
+        authors = nodes[paperId][4][0]['name'].split()[-1]+" et al."
+    return authors+", "+year
+
 @st.cache(max_entries=20)   #-- cache data
 def graph_provenance(url, min_refs):
     """Function: Generate html file with interactive graph"""
