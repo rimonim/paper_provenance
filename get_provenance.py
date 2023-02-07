@@ -8,6 +8,7 @@ def get_provenance(seed_paper):
     """
     Given seed paper (url), generate nodes (dict) and edge list (dataframe) for its parents and grandparents.
     """
+    progress_bar = st.progress(0)
     nodes = dict()
     # Get metadata and references of seed paper
     http = requests.get("https://api.semanticscholar.org/graph/v1/paper/URL:%s?fields=title,year,publicationDate,journal,authors,url,references.title,references.publicationDate,references.year,references.journal,references.authors,references.url,embedding" %seed_paper)
@@ -25,8 +26,10 @@ def get_provenance(seed_paper):
     # Make edges list with corpus-listed references
     edges = pd.DataFrame({"referencing": [json['paperId']]*len(references_df),
                           "referenced": references_df['paperId']})
+    progress_bar.progress(1/len(references_df.index))
     # For each reference, get its references and their metadata, and add them to the dicts
     for index, row in references_df.iterrows():
+        progress_bar.progress((index+1)/len(references_df.index))
         # Get metadata and references of referenced paper
         temp_http = requests.get("https://api.semanticscholar.org/graph/v1/paper/%s?fields=title,year,publicationDate,journal,authors,url,references.title,references.publicationDate,references.year,references.journal,references.authors,references.url" %row['paperId'])
         if temp_http.status_code == 429:
