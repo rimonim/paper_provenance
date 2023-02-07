@@ -15,7 +15,6 @@ def get_provenance(seed_paper):
     """
     Given seed paper (url), generate nodes (dict) and edge list (dataframe) for its parents and grandparents.
     """
-    progress_bar = st.progress(0)
     nodes = dict()
     # Get metadata and references of seed paper
     http = requests.get("https://api.semanticscholar.org/graph/v1/paper/URL:%s?fields=title,year,publicationDate,journal,authors,url,references.title,references.publicationDate,references.year,references.journal,references.authors,references.url,embedding" %seed_paper)
@@ -237,12 +236,17 @@ if seed_paper == 'New Search':
     url = st.sidebar.text_input('Input Semantic Scholar or arXiv URL:')
     if len(url) != 0:
         with st.spinner('Retrieving data from the SemanticScholar Database...'):
+            progress_bar = st.progress(0)
             seed_paper, html = graph_provenance(url, 4)
+            progress_bar.progress(1.0)
         st.sidebar.success('Done!')
 else:
     with st.spinner("Preparing your graph..."):
+        progress_bar = st.progress(0)
         seed_paper, html = graph_provenance(available_papers_dict[seed_paper], 4)
-        
+        progress_bar.progress(1.0)
+
+progress_bar.empty()
 with st.spinner("Preparing your graph..."):
     # Set header title
     if seed_paper != 'New Search':
