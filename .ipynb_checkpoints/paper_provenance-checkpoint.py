@@ -251,12 +251,21 @@ with st.spinner("Preparing your graph..."):
     if seed_paper != 'New Search':
         progress_bar.empty()
         st.title('Provenance of '+seed_paper)
-        st.markdown('The x axis is time. Pink nodes are direct references (parents) of the seed paper, while grey nodes are references of references (grandparents). With the exception of the seed paper, nodes are sized in proportion to their number of citations within the graph. Grandparent papers with three or fewer references have been dropped to avoid clutter.')
+        st.markdown('The x axis is time. Pink nodes are direct references (parents) of the seed paper, while grey nodes are references of references (grandparents). With the exception of the seed paper, nodes are sized in proportion to their number of citations within the graph. Grandparent papers with three or fewer references have been dropped to avoid clutter. Try dragging the nodes around!')
 
         # Load HTML file in HTML component for display on Streamlit page
         components.html(html, height=600)
     else:
         st.warning('Waiting for user input.')
+
+# Explanation
+st.subheader('What does this tool do?')
+st.write(
+    """
+    There are many tools for searching the scientific literature. There are even tools for finding closely related works and visualizing them as connected nodes on a graph. But to my knowledge, this is the only tool for visualizing the history of a field leading up to the publication of your choosing. The graph should give you a sense of what the oldest important papers were (on the far left), when the major developments in the field occured (large nodes represent influential papers within this subfield), and when the largest mass of references were published (the widest portion of the graph). 
+    The graph is force-directed, meaning that each connection is modelled as a spring, pulling its ends closer together. If you look carefully, you may make out individual chains of research that cluster together.
+    """
+)
 
 # Footer
 st.markdown(
