@@ -17,11 +17,11 @@ def get_provenance(seed_paper):
     """
     nodes = dict()
     # Get metadata and references of seed paper
-    http = requests.get("https://api.semanticscholar.org/graph/v1/paper/URL:%s?fields=title,year,publicationDate,journal,authors,url,references.title,references.publicationDate,references.year,references.journal,references.authors,references.url,embedding" %seed_paper)
+    http = requests.get("https://api.semanticscholar.org/graph/v1/paper/URL:%s?fields=title,year,publicationDate,journal,authors,url,references.title,references.publicationDate,references.year,references.journal,references.authors,references.url,embedding" %seed_paper, headers = headers)
     if http.status_code == 429:
         print("Waiting 5 Minutes for access to the API...")
         time.sleep(300)
-        http = requests.get("https://api.semanticscholar.org/graph/v1/paper/URL:%s?fields=title,year,publicationDate,journal,authors,url,references.title,references.publicationDate,references.year,references.journal,references.authors,references.url,embedding" %seed_paper)
+        http = requests.get("https://api.semanticscholar.org/graph/v1/paper/URL:%s?fields=title,year,publicationDate,journal,authors,url,references.title,references.publicationDate,references.year,references.journal,references.authors,references.url,embedding" %seed_paper, headers = headers)
     json = http.json()
     # Put seed paper metadata into nodes dict
     nodes[json['paperId']] = [json['title'], datetime.strptime(json['publicationDate'], '%Y-%m-%d'), json['year'], json['journal'], json['authors'], json['url'], json['embedding']['vector']]
@@ -39,11 +39,11 @@ def get_provenance(seed_paper):
         if index <= len(references_df.index):
             progress_bar.progress(0.9*index/len(references_df.index))
         # Get metadata and references of referenced paper
-        temp_http = requests.get("https://api.semanticscholar.org/graph/v1/paper/%s?fields=title,year,publicationDate,journal,authors,url,references.title,references.publicationDate,references.year,references.journal,references.authors,references.url" %row['paperId'])
+        temp_http = requests.get("https://api.semanticscholar.org/graph/v1/paper/%s?fields=title,year,publicationDate,journal,authors,url,references.title,references.publicationDate,references.year,references.journal,references.authors,references.url" %row['paperId'], headers = headers)
         if temp_http.status_code == 429:
             print("Waiting 5 Minutes for access to the SemanticScholar API...")
             time.sleep(300)
-            temp_http = requests.get("https://api.semanticscholar.org/graph/v1/paper/%s?fields=title,year,publicationDate,journal,authors,url,references.title,references.publicationDate,references.year,references.journal,references.authors,references.url" %row['paperId'])
+            temp_http = requests.get("https://api.semanticscholar.org/graph/v1/paper/%s?fields=title,year,publicationDate,journal,authors,url,references.title,references.publicationDate,references.year,references.journal,references.authors,references.url" %row['paperId'], headers = headers)
         if temp_http.status_code == 404:
             continue
         temp_json = temp_http.json()
@@ -79,6 +79,8 @@ def get_heading(paperId, nodes, edges):
     else:
         authors = nodes[paperId][4][0]['name'].split()[-1]+" et al."
     return authors+", "+year
+
+headers={'x-api-key':'FCndxzhW160dParwnevD46jKxnLLuBv7DE3UR1qa'}
 
 @st.cache(max_entries=20, show_spinner=False, suppress_st_warning=True)   #-- cache data
 def graph_provenance(url, min_refs):
@@ -226,7 +228,7 @@ try:
         available_papers_list = pickle.load(l)
 except:
     available_papers_dict = {'Parr & Friston, 2017':'https://www.semanticscholar.org/paper/Working-memory%2C-attention%2C-and-salience-in-active-Parr-Friston/44b62057755cbf95baf78bf1b5a931da66f05c09'}
-    available_papers_list = ['Parr & Friston, 2017', 'New Search']
+    available_papers_list = ['New Search']
 
 # PAGE
 seed_paper = st.sidebar.selectbox("Select a seed paper to visualize:", available_papers_list)
