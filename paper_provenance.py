@@ -82,7 +82,7 @@ def get_heading(paperId, nodes, edges):
 
 headers={'x-api-key':'FCndxzhW160dParwnevD46jKxnLLuBv7DE3UR1qa'}
 
-@st.cache(max_entries=20, show_spinner=False, suppress_st_warning=True)   #-- cache data
+@st.cache_data(max_entries=20, show_spinner=False)   #-- cache data
 def graph_provenance(url, min_refs):
     """Function: Generate html file with interactive graph"""
     # Retrieve data
